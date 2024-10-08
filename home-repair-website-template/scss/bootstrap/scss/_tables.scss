@@ -1,0 +1,150 @@
+//
+// Basic Bootstrap table
+//
+
+.table {
+  --#{$variable-prefix}table-bg: #{$table-bg};
+  --#{$variable-prefix}table-striped-color: #{$table-striped-color};
+  --#{$variable-prefix}table-striped-bg: #{$table-striped-bg};
+  --#{$variable-prefix}table-active-color: #{$table-active-color};
+  --#{$variable-prefix}table-active-bg: #{$table-active-bg};
+  --#{$variable-prefix}table-hover-color: #{$table-hover-color};
+  --#{$variable-prefix}table-hover-bg: #{$table-hover-bg};
+
+  width: 100%;
+  margin-bottom: $spacer;
+  color: $table-color;
+  vertical-align: $table-cell-vertical-align;
+  border-color: $table-border-color;
+
+  // Alvo th&td
+  // Precisamos do combinador filho para evitar vazamento de estilos para tabelas aninhadas que não possuem uma classe `.table`.
+  // Usamos os seletores universais aqui para simplificar o seletor (caso contrário, precisaríamos de 6 seletores diferentes).
+  // Outra vantagem é que isso gera menos código e torna o seletor menos específico, facilitando sua substituição.
+  // stylelint-disable-seletor de próxima linha-max-universal
+  > :not(caption) > * > * {
+    padding: $table-cell-padding-y $table-cell-padding-x;
+    background-color: var(--#{$variable-prefix}table-bg);
+    border-bottom-width: $table-border-width;
+    box-shadow: inset 0 0 0 9999px var(--#{$variable-prefix}table-accent-bg);
+  }
+
+  > tbody {
+    vertical-align: inherit;
+  }
+
+  > thead {
+    vertical-align: bottom;
+  }
+
+  // Destaque a cor da borda entre thead, tbody e tfoot.
+  > :not(:last-child) > :last-child > * {
+    border-bottom-color: $table-group-separator-color;
+  }
+}
+
+
+//
+// Alterar o posicionamento das legendas com uma class
+//
+
+.caption-top {
+  caption-side: top;
+}
+
+
+//
+// Condensed table w/ half padding
+//
+
+.table-sm {
+  // stylelint-disable-next-line selector-max-universal
+  > :not(caption) > * > * {
+    padding: $table-cell-padding-y-sm $table-cell-padding-x-sm;
+  }
+}
+
+
+// Versões de borda
+//
+// Adicione ou remova bordas ao redor da tabela e entre todas as colunas.
+//
+// Quando bordas são adicionadas em todos os lados das células, os cantos podem ficar estranhos quando
+// essas bordas não têm a mesma cor ou são semitransparentes.
+// Portanto, adicionamos o topo e a borda inferior aos `tr`s e às bordas esquerda e direita
+// para os `td`s ou `th`s
+
+.table-bordered {
+  > :not(caption) > * {
+    border-width: $table-border-width 0;
+
+    // stylelint-disable-next-line selector-max-universal
+    > * {
+      border-width: 0 $table-border-width;
+    }
+  }
+}
+
+.table-borderless {
+  // stylelint-disable-next-line selector-max-universal
+  > :not(caption) > * > * {
+    border-bottom-width: 0;
+  }
+}
+
+// Zebra-striping
+//
+// Default zebra-stripe styles (alternating gray and transparent backgrounds)
+
+.table-striped {
+  > tbody > tr:nth-of-type(#{$table-striped-order}) {
+    --#{$variable-prefix}table-accent-bg: var(--#{$variable-prefix}table-striped-bg);
+    color: var(--#{$variable-prefix}table-striped-color);
+  }
+}
+
+// Active table
+//
+// O `.table-active` class pode ser adicionado para destacar linhas ou células
+
+.table-active {
+  --#{$variable-prefix}table-accent-bg: var(--#{$variable-prefix}table-active-bg);
+  color: var(--#{$variable-prefix}table-active-color);
+}
+
+// Hover effect
+//
+// Colocado aqui porque deve vir depois da possível faixa de zebra
+
+.table-hover {
+  > tbody > tr:hover {
+    --#{$variable-prefix}table-accent-bg: var(--#{$variable-prefix}table-hover-bg);
+    color: var(--#{$variable-prefix}table-hover-color);
+  }
+}
+
+
+// table-variants
+//
+// As variantes da tabela definem o plano de fundo das células da tabela e as cores das bordas
+// e as cores do listrado, hovered & active tables
+
+@each $color, $value in $table-variants {
+  @include table-variant($color, $value);
+}
+
+// Responsive tables
+//
+// Gere uma série de classes `.table-responsive-*` para configurar a tela
+// tamanho de onde sua tabela irá transbordar.
+
+@each $breakpoint in map-keys($grid-breakpoints) {
+  $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+
+  @include media-breakpoint-down($breakpoint) {
+    .table-responsive#{$infix} {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+}
